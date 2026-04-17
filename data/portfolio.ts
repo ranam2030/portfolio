@@ -195,6 +195,100 @@ export const projects: Project[] = [
 export const stats = [
   { value: '70%', label: 'Regression Reduced' },
   { value: '1.2k+', label: 'Automated Test Cases' },
-  { value: '5+', label: 'Years of Expertise' },
+  { value: '6+', label: 'Years of Expertise' },
   { value: '0', label: 'Critical Release Bugs' },
+];
+
+export interface Testimonial {
+  name: string;
+  role: string;
+  company: string;
+  date: string;
+  relationship: string;
+  quote: string;
+  initials: string;
+  color: string;
+}
+
+export const testimonials: Testimonial[] = [
+  {
+    name: 'Muhammad Rajib Hawlader',
+    role: 'Senior Software Engineer',
+    company: 'Brotecs Technologies Ltd.',
+    date: 'May 2023',
+    relationship: 'Worked on the same team',
+    initials: 'MR',
+    color: '#98cbff',
+    quote: `Masud's technical skills as a QA engineer are outstanding. He has a deep understanding of various testing methodologies, frameworks, and tools. His ability to design comprehensive test plans, execute test cases meticulously, and identify and report bugs efficiently is commendable.\n\nOne of Masud's greatest strengths is his ability to collaborate effectively with cross-functional teams. He possesses excellent communication skills, allowing him to articulate complex technical concepts clearly and concisely.\n\nMasud is a natural leader and a mentor to junior team members. He takes the initiative to share his knowledge and experiences, ensuring that the entire team stays up-to-date with the latest industry trends. I highly recommend Masud for any position that requires a talented and experienced QA professional.`,
+  },
+  {
+    name: 'Sayma Farzana Nushin',
+    role: 'Senior SQA Engineer',
+    company: 'Brotecs Technologies',
+    date: 'September 2023',
+    relationship: 'Was Md. Masud\'s mentor',
+    initials: 'SF',
+    color: '#5dcaa5',
+    quote: `A skillful team peer with a generous personality. I have worked with Masud for almost 3 years. I was senior to him and supervised him in his early career time in Brotecs. He never failed to impress me and the team with his hard work and dedication in quality work. His ability to adopt new technology and problem solving skill makes him a valuable resource in company. I highly recommend him and wish him great future.`,
+  },
+  {
+    name: 'S M Samnoon Abrar',
+    role: 'Software Engineer',
+    company: 'Brotecs Technologies',
+    date: 'April 2023',
+    relationship: 'Worked on the same team',
+    initials: 'SA',
+    color: '#bdc2ff',
+    quote: `I am thrilled to recommend Masud as a top-notch Software Quality Assurance (SQA) Engineer with expertise in Test Automation. Masud's expertise in designing and implementing robust test automation frameworks is truly remarkable. His attention to detail, technical proficiency, and innovative approach have consistently yielded exceptional results.\n\nOne of Masud's standout qualities is his exceptional teamwork and collaboration skills. He is always willing to go the extra mile to support his team members and foster a positive work environment. Masud's positive attitude, professionalism, and ability to handle complex projects with ease make him a true asset to any team.`,
+  },
+  {
+    name: 'Md. Ahata Sham Ul Haque Tushar',
+    role: 'Frontend Developer & Software Engineer',
+    company: '',
+    date: 'November 2021',
+    relationship: 'Colleague',
+    initials: 'AT',
+    color: '#f9a825',
+    quote: 'He is a great QA.',
+  },
+];
+
+export interface Certification {
+  name: string;
+  issuer: string;
+  date: string;
+  credentialUrl: string;
+  icon: string;
+  color: string;
+  issuerLogo: 'linkedin' | 'udemy' | 'keeron' | 'generic';
+}
+
+export const certifications: Certification[] = [
+  {
+    name: 'Advanced JMeter',
+    issuer: 'LinkedIn Learning',
+    date: 'Feb 2025',
+    credentialUrl: 'https://www.linkedin.com/learning/certificates/95c45a3b30c603d366f0139bf12f798802fdd2ea552ea610456ac03415589d82',
+    icon: 'speed',
+    color: '#0a66c2',
+    issuerLogo: 'linkedin',
+  },
+  {
+    name: 'Udemy Certification',
+    issuer: 'Udemy',
+    date: '',
+    credentialUrl: 'https://www.udemy.com/certificate/UC-cb0a2541-0d90-4edc-88c9-44a090add076/',
+    icon: 'school',
+    color: '#a435f0',
+    issuerLogo: 'udemy',
+  },
+  {
+    name: 'Keeron Certification',
+    issuer: 'Keeron',
+    date: '',
+    credentialUrl: 'https://keeron.com/certificate/1739962579258',
+    icon: 'verified',
+    color: '#5dcaa5',
+    issuerLogo: 'keeron',
+  },
 ];

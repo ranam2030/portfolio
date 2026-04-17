@@ -169,6 +169,7 @@ export function Contact() {
 
   const [formData, setFormData] = useState<FormData>({ name: '', email: '', subject: '', message: '' });
   const [formState, setFormState] = useState<FormState>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -177,10 +178,23 @@ export function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState('loading');
-    await new Promise(r => setTimeout(r, 1600));
-    setFormState('success');
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    setTimeout(() => setFormState('idle'), 5000);
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      setFormState('success');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setFormState('idle'), 6000);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to send. Please try again.');
+      setFormState('error');
+      setTimeout(() => setFormState('idle'), 5000);
+    }
   };
 
   return (
@@ -365,7 +379,7 @@ export function Contact() {
               <div className="mt-6 flex items-center gap-4">
                 <motion.button
                   type="submit"
-                  disabled={formState === 'loading' || formState === 'success'}
+                  disabled={formState === 'loading' || formState === 'success' || formState === 'error'}
                   whileHover={formState === 'idle' ? { scale: 1.02 } : {}}
                   whileTap={formState === 'idle' ? { scale: 0.98 } : {}}
                   className={`flex-1 sm:flex-none px-8 py-3.5 rounded-xl font-bold font-body text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
@@ -398,9 +412,10 @@ export function Contact() {
                   )}
                 </motion.button>
 
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                   {formState === 'success' && (
                     <motion.div
+                      key="success"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0 }}
@@ -410,6 +425,18 @@ export function Contact() {
                       <p className={`text-[11px] font-body ${isDark ? 'text-on-surface-variant/50' : 'text-gray-400'}`}>
                         I&apos;ll reply within 24 hours.
                       </p>
+                    </motion.div>
+                  )}
+                  {formState === 'error' && (
+                    <motion.div
+                      key="error"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center gap-1.5"
+                    >
+                      <span className="material-symbols-outlined text-[15px] text-red-400">error</span>
+                      <p className="text-xs text-red-400 font-body">{errorMsg}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>

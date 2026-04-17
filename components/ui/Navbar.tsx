@@ -8,6 +8,7 @@ const navLinks = [
   { label: 'About', href: '#about' },
   { label: 'Skills', href: '#skills' },
   { label: 'Experience', href: '#experience' },
+  { label: 'Trust', href: '#testimonials' },
   { label: 'Projects', href: '#projects' },
   { label: 'Contact', href: '#contact' },
 ];
@@ -22,7 +23,7 @@ export function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
       const sections = navLinks.map(l => l.href.slice(1));
-      for (const id of sections.reverse()) {
+      for (const id of [...sections].reverse()) {
         const el = document.getElementById(id);
         if (el && window.scrollY >= el.offsetTop - 120) {
           setActiveSection(id);
@@ -39,6 +40,7 @@ export function Navbar() {
   return (
     <>
       <motion.nav
+        aria-label="Main navigation"
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -52,7 +54,7 @@ export function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 group">
+          <a href="#" aria-label="Masud Rana — back to top" className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-1">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-slow" />
             <span
               className={`text-base font-bold tracking-[0.15em] font-headline transition-colors ${
@@ -64,28 +66,33 @@ export function Navbar() {
           </a>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map(link => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={`relative text-sm font-medium font-body tracking-tight transition-colors duration-200 ${
-                  activeSection === link.href.slice(1)
-                    ? 'text-primary'
-                    : isDark
-                    ? 'text-on-surface-variant hover:text-primary'
-                    : 'text-gray-600 hover:text-blue-600'
-                }`}
-              >
-                {link.label}
-                {activeSection === link.href.slice(1) && (
-                  <motion.span
-                    layoutId="active-nav"
-                    className="absolute -bottom-1 left-0 right-0 h-[1px] bg-primary"
-                  />
-                )}
-              </a>
-            ))}
+          <div className="hidden md:flex items-center gap-8" role="list">
+            {navLinks.map(link => {
+              const isActive = activeSection === link.href.slice(1);
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  role="listitem"
+                  aria-current={isActive ? 'true' : undefined}
+                  className={`relative text-sm font-medium font-body tracking-tight transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-1 py-0.5 ${
+                    isActive
+                      ? 'text-primary'
+                      : isDark
+                      ? 'text-on-surface-variant hover:text-primary'
+                      : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  {link.label}
+                  {isActive && (
+                    <motion.span
+                      layoutId="active-nav"
+                      className="absolute -bottom-1 left-0 right-0 h-[1px] bg-primary"
+                    />
+                  )}
+                </a>
+              );
+            })}
           </div>
 
           {/* Actions */}
@@ -93,12 +100,12 @@ export function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              className={`p-2 rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isDark
                   ? 'text-on-surface-variant hover:bg-surface-container-high hover:text-primary'
                   : 'text-gray-500 hover:bg-gray-100 hover:text-blue-600'
               }`}
-              aria-label="Toggle theme"
             >
               <span className="material-symbols-outlined text-[20px]">
                 {isDark ? 'light_mode' : 'dark_mode'}
@@ -110,7 +117,8 @@ export function Navbar() {
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:inline-flex items-center gap-1.5 px-5 py-2 bg-primary text-on-primary text-sm font-bold rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 active:scale-95 font-body"
+              aria-label="Download resume (opens in new tab)"
+              className="hidden md:inline-flex items-center gap-1.5 px-5 py-2 bg-primary text-on-primary text-sm font-bold rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 active:scale-95 font-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <span className="material-symbols-outlined text-[16px]">download</span>
               Resume
@@ -118,8 +126,11 @@ export function Navbar() {
 
             {/* Mobile Menu Toggle */}
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className={`md:hidden p-2 rounded-lg transition-colors ${
+              onClick={() => setMobileOpen(prev => !prev)}
+              aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+              className={`md:hidden p-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isDark ? 'text-on-surface-variant hover:bg-surface-container' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -133,6 +144,9 @@ export function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
+            id="mobile-menu"
+            role="navigation"
+            aria-label="Mobile navigation"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -149,10 +163,11 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
+                  aria-current={activeSection === link.href.slice(1) ? 'true' : undefined}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className={`px-4 py-3 rounded-lg font-medium font-body text-sm transition-colors ${
+                  className={`px-4 py-3 rounded-lg font-medium font-body text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     activeSection === link.href.slice(1)
                       ? 'text-primary bg-primary/5'
                       : isDark
@@ -167,7 +182,8 @@ export function Navbar() {
                 href="/resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-on-primary text-sm font-bold rounded-lg"
+                aria-label="Download resume (opens in new tab)"
+                className="mt-2 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-on-primary text-sm font-bold rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 <span className="material-symbols-outlined text-[16px]">download</span>
                 Download Resume
