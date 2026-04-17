@@ -5,7 +5,6 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { skillCategories, type SkillCategory } from '@/data/portfolio';
 
-// ─── Proficiency metadata ──────────────────────────────────────────────────
 type Level = 'Expert' | 'Advanced' | 'Proficient' | 'Learning';
 
 const SKILL_META: Record<string, { level: Level; yrs: number }> = {
@@ -40,85 +39,88 @@ const SKILL_META: Record<string, { level: Level; yrs: number }> = {
 };
 
 const LEVEL_VALUE: Record<Level, number> = {
-  Expert: 95, Advanced: 75, Proficient: 50, Learning: 25,
+  Expert: 95, Advanced: 75, Proficient: 52, Learning: 25,
 };
 
-const LEVEL_CONFIG: Record<Level, { pill: string; dot: string; bar: string; text: string }> = {
-  Expert:     { pill: 'bg-primary/10 border-primary/25 text-primary',           dot: 'bg-primary',    bar: 'from-primary to-primary/60',        text: 'text-primary' },
-  Advanced:   { pill: 'bg-green-500/10 border-green-500/25 text-green-500',     dot: 'bg-green-500',  bar: 'from-green-500 to-green-400/60',     text: 'text-green-500' },
-  Proficient: { pill: 'bg-amber-500/10 border-amber-500/25 text-amber-500',     dot: 'bg-amber-500',  bar: 'from-amber-500 to-amber-400/60',     text: 'text-amber-500' },
-  Learning:   { pill: 'bg-gray-500/10 border-gray-400/20 text-gray-400',        dot: 'bg-gray-400',   bar: 'from-gray-400 to-gray-400/50',       text: 'text-gray-400' },
+const LEVEL_CONFIG: Record<Level, {
+  pill: string; dot: string; bar: string; text: string; badge: string;
+}> = {
+  Expert:     { pill: 'bg-primary/10 border-primary/25 text-primary',          dot: 'bg-primary',   bar: 'from-primary to-primary/70',        text: 'text-primary',    badge: 'bg-primary/15 text-primary' },
+  Advanced:   { pill: 'bg-green-500/10 border-green-500/25 text-green-500',    dot: 'bg-green-500', bar: 'from-green-500 to-green-400/70',     text: 'text-green-500',  badge: 'bg-green-500/15 text-green-500' },
+  Proficient: { pill: 'bg-amber-500/10 border-amber-500/25 text-amber-500',    dot: 'bg-amber-500', bar: 'from-amber-500 to-amber-400/70',     text: 'text-amber-500',  badge: 'bg-amber-500/15 text-amber-500' },
+  Learning:   { pill: 'bg-gray-500/10 border-gray-400/20 text-gray-400',       dot: 'bg-gray-400',  bar: 'from-gray-400 to-gray-400/50',       text: 'text-gray-400',   badge: 'bg-gray-400/15 text-gray-400' },
 };
 
-// ─── Skill pill with tooltip ───────────────────────────────────────────────
-function SkillPill({
-  skill, isDark, cardInView, pillIndex,
+function SkillRow({
+  skill, isDark, inView, index,
 }: {
-  skill: string; isDark: boolean; cardInView: boolean; pillIndex: number;
+  skill: string; isDark: boolean; inView: boolean; index: number;
 }) {
   const [hovered, setHovered] = useState(false);
   const meta = SKILL_META[skill];
   const cfg = LEVEL_CONFIG[meta?.level ?? 'Proficient'];
+  const pct = LEVEL_VALUE[meta?.level ?? 'Proficient'];
 
   return (
     <motion.div
-      className="relative"
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={cardInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ delay: 0.15 + pillIndex * 0.05, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, x: -10 }}
+      animate={inView ? { opacity: 1, x: 0 } : {}}
+      transition={{ delay: 0.1 + index * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
+      className="group"
     >
-      {/* Tooltip */}
-      <AnimatePresence>
-        {hovered && meta && (
-          <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.92 }}
-            transition={{ duration: 0.14 }}
-            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none"
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-2">
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+          <span
+            className={`text-xs font-medium font-body ${
+              isDark ? 'text-on-surface-variant group-hover:text-on-surface' : 'text-gray-600 group-hover:text-gray-900'
+            } transition-colors duration-200`}
           >
-            <div className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap border shadow-lg ${
-              isDark
-                ? 'bg-surface-container-highest border-outline-variant/40 text-on-surface'
-                : 'bg-white border-gray-200 text-gray-900'
-            }`}>
-              <span className={cfg.text}>{meta.level}</span>
-              <span className={isDark ? ' text-on-surface-variant/60' : ' text-gray-400'}>
-                {' '}· {meta.yrs} yr{meta.yrs !== 1 ? 's' : ''}
-              </span>
-            </div>
-            {/* Caret */}
-            <div className={`absolute top-full left-1/2 -translate-x-1/2 border-l-4 border-r-4 border-t-[5px] border-l-transparent border-r-transparent ${
-              isDark ? 'border-t-surface-container-highest' : 'border-t-white'
-            }`} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Pill */}
-      <motion.span
-        whileHover={{ scale: 1.08, y: -1 }}
-        transition={{ duration: 0.15 }}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded border font-body tracking-wide cursor-default select-none ${cfg.pill}`}
+            {skill}
+          </span>
+        </div>
+        <AnimatePresence>
+          {hovered && meta && (
+            <motion.span
+              initial={{ opacity: 0, scale: 0.8, x: 4 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.8, x: 4 }}
+              transition={{ duration: 0.15 }}
+              className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${cfg.badge}`}
+            >
+              {meta.level} · {meta.yrs}yr{meta.yrs !== 1 ? 's' : ''}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+      <div
+        className={`h-1 rounded-full overflow-hidden ${
+          isDark ? 'bg-outline-variant/15' : 'bg-gray-100'
+        }`}
       >
-        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-        {skill}
-      </motion.span>
+        <motion.div
+          initial={{ width: 0 }}
+          animate={inView ? { width: `${pct}%` } : {}}
+          transition={{ delay: 0.2 + index * 0.04, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className={`h-full rounded-full bg-gradient-to-r ${cfg.bar}`}
+        />
+      </div>
     </motion.div>
   );
 }
 
-// ─── Skill card ────────────────────────────────────────────────────────────
 function SkillCard({
   category, index, inView, isDark,
 }: {
   category: SkillCategory; index: number; inView: boolean; isDark: boolean;
 }) {
   const avgLevel = Math.round(
-    category.skills.reduce((sum, s) => sum + (LEVEL_VALUE[SKILL_META[s]?.level ?? 'Proficient']), 0) /
-    category.skills.length
+    category.skills.reduce(
+      (sum, s) => sum + (LEVEL_VALUE[SKILL_META[s]?.level ?? 'Proficient']),
+      0
+    ) / category.skills.length
   );
   const dominantLevel: Level =
     avgLevel >= 87 ? 'Expert' : avgLevel >= 62 ? 'Advanced' : avgLevel >= 40 ? 'Proficient' : 'Learning';
@@ -126,57 +128,78 @@ function SkillCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 28 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: 0.08 + index * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -3 }}
-      className={`group p-7 rounded-xl transition-colors duration-300 border ${
+      transition={{ delay: 0.06 + index * 0.09, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -4 }}
+      className={`group relative p-6 rounded-2xl border transition-all duration-300 overflow-hidden ${
         isDark
-          ? 'bg-surface-container border-outline-variant/10 hover:border-primary/20 hover:bg-surface-container-high'
-          : 'bg-gray-50 border-gray-200/60 hover:border-blue-200 hover:bg-white hover:shadow-md'
+          ? 'bg-surface-container border-outline-variant/10 hover:border-primary/25 hover:bg-surface-container-high'
+          : 'bg-white border-gray-200/80 hover:border-blue-200 hover:shadow-lg'
       }`}
     >
+      {/* Subtle glow on hover */}
+      <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[50px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-primary/8" />
+
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="flex items-start justify-between gap-3 mb-5">
         <div className="flex items-center gap-3">
-          <div className={`p-2.5 rounded-lg transition-colors ${
-            isDark ? 'bg-surface-container-high group-hover:bg-primary/10' : 'bg-white group-hover:bg-blue-50'
-          }`}>
+          <motion.div
+            whileHover={{ rotate: [0, -8, 8, 0] }}
+            transition={{ duration: 0.4 }}
+            className={`p-2.5 rounded-xl transition-colors ${
+              isDark
+                ? 'bg-surface-container-high group-hover:bg-primary/12'
+                : 'bg-gray-50 group-hover:bg-blue-50 border border-gray-100'
+            }`}
+          >
             <span className="material-symbols-outlined text-primary text-2xl">
               {category.icon}
             </span>
-          </div>
+          </motion.div>
           <div>
-            <h3 className={`text-base font-bold font-headline leading-tight ${isDark ? 'text-on-surface' : 'text-gray-900'}`}>
+            <h3
+              className={`text-sm font-bold font-headline leading-tight ${
+                isDark ? 'text-on-surface' : 'text-gray-900'
+              }`}
+            >
               {category.title}
             </h3>
             <span className={`text-[11px] font-body ${barCfg.text}`}>{dominantLevel}</span>
           </div>
         </div>
-        <span className={`text-[11px] font-mono mt-1 shrink-0 ${isDark ? 'text-on-surface-variant/40' : 'text-gray-400'}`}>
+        <span
+          className={`text-[10px] font-mono mt-0.5 px-2 py-0.5 rounded shrink-0 ${
+            isDark ? 'bg-surface-container-highest text-on-surface-variant/50' : 'bg-gray-50 text-gray-400 border border-gray-100'
+          }`}
+        >
           {category.skills.length} skills
         </span>
       </div>
 
-      {/* Proficiency bar */}
-      <div className={`h-1 rounded-full mb-5 overflow-hidden ${isDark ? 'bg-outline-variant/20' : 'bg-gray-200'}`}>
+      {/* Overall proficiency bar */}
+      <div
+        className={`h-1.5 rounded-full mb-5 overflow-hidden ${
+          isDark ? 'bg-outline-variant/20' : 'bg-gray-100'
+        }`}
+      >
         <motion.div
           initial={{ width: 0 }}
           animate={inView ? { width: `${avgLevel}%` } : {}}
-          transition={{ delay: 0.3 + index * 0.08, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ delay: 0.3 + index * 0.09, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           className={`h-full rounded-full bg-gradient-to-r ${barCfg.bar}`}
         />
       </div>
 
-      {/* Skill pills */}
-      <div className="flex flex-wrap gap-2">
+      {/* Individual skill rows */}
+      <div className="space-y-3">
         {category.skills.map((skill, i) => (
-          <SkillPill
+          <SkillRow
             key={skill}
             skill={skill}
             isDark={isDark}
-            cardInView={inView}
-            pillIndex={i}
+            inView={inView}
+            index={i}
           />
         ))}
       </div>
@@ -184,7 +207,6 @@ function SkillCard({
   );
 }
 
-// ─── Main section ──────────────────────────────────────────────────────────
 export function Skills() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
@@ -197,6 +219,7 @@ export function Skills() {
       className={`py-32 px-6 transition-colors ${isDark ? 'bg-surface' : 'bg-white'}`}
     >
       <div className="max-w-7xl mx-auto" ref={ref}>
+
         {/* Header */}
         <motion.div
           className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
@@ -209,15 +232,18 @@ export function Skills() {
             <h2 className={`section-heading ${isDark ? '' : '!text-gray-900'}`}>
               Expertise &amp; Tools
             </h2>
+            <p className={`mt-3 text-sm font-body max-w-lg ${isDark ? 'text-on-surface-variant' : 'text-gray-500'}`}>
+              6+ years across automation, performance, and DevOps — hover any skill to see proficiency details.
+            </p>
           </div>
-          <p className={`text-sm font-mono ${isDark ? 'text-on-surface-variant/50' : 'text-gray-400'}`}>
+          <p className={`text-sm font-mono shrink-0 ${isDark ? 'text-on-surface-variant/40' : 'text-gray-400'}`}>
             / SKILLS_MAP.JSON
           </p>
         </motion.div>
 
         {/* Proficiency legend */}
         <motion.div
-          className="flex flex-wrap gap-x-5 gap-y-2 mb-10"
+          className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-10"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.2, duration: 0.5 }}
@@ -228,9 +254,8 @@ export function Skills() {
               <span className={isDark ? 'text-on-surface-variant/60' : 'text-gray-500'}>{level}</span>
             </span>
           ))}
-          <span className={`text-xs font-body ${isDark ? 'text-on-surface-variant/30' : 'text-gray-300'}`}>—</span>
-          <span className={`text-xs font-body italic ${isDark ? 'text-on-surface-variant/40' : 'text-gray-400'}`}>
-            hover any skill for details
+          <span className={`hidden sm:block text-xs font-body italic ml-2 ${isDark ? 'text-on-surface-variant/35' : 'text-gray-400'}`}>
+            — hover any skill row for details
           </span>
         </motion.div>
 
@@ -248,16 +273,19 @@ export function Skills() {
         </div>
 
         {/* Footer note */}
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.9, duration: 0.5 }}
-          className={`mt-12 text-sm font-body text-center ${
-            isDark ? 'text-on-surface-variant/40' : 'text-gray-400'
-          }`}
+          className="mt-12 flex items-center justify-center gap-3"
         >
-          Continuously learning · Currently exploring AI-assisted testing &amp; observability tooling
-        </motion.p>
+          <div className={`h-[1px] w-12 ${isDark ? 'bg-outline-variant/30' : 'bg-gray-200'}`} />
+          <p className={`text-xs font-body text-center ${isDark ? 'text-on-surface-variant/40' : 'text-gray-400'}`}>
+            Continuously learning · Currently exploring AI-assisted testing &amp; observability tooling
+          </p>
+          <div className={`h-[1px] w-12 ${isDark ? 'bg-outline-variant/30' : 'bg-gray-200'}`} />
+        </motion.div>
+
       </div>
     </section>
   );
