@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { testimonials, certifications, type Testimonial, type Certification } from '@/data/portfolio';
+import { BlurText, SpotlightCard } from '../ui/animations';
 
 /* ─── Issuer SVG logos ──────────────────────────────────── */
 function IssuerLogo({ type, size = 18 }: { type: Certification['issuerLogo']; size?: number }) {
@@ -37,12 +38,17 @@ function TestimonialCard({ t, index, inView, isDark }: {
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: 0.1 + index * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -4 }}
-      className={`group relative flex flex-col rounded-2xl border p-7 transition-all duration-300 overflow-hidden ${
+      className={`group relative rounded-2xl border transition-all duration-300 overflow-hidden ${
         isDark
           ? 'bg-surface-container border-outline-variant/10 hover:border-outline-variant/25'
           : 'bg-white border-gray-200 shadow-sm hover:shadow-lg'
       }`}
     >
+      <SpotlightCard
+        className="flex flex-col p-7 rounded-2xl"
+        spotlightColor={isDark ? `${t.color}1f` : `${t.color}15`}
+        radius={320}
+      >
       {/* Colored top stripe */}
       <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         style={{ background: `linear-gradient(90deg, transparent, ${t.color}, transparent)` }} />
@@ -96,6 +102,7 @@ function TestimonialCard({ t, index, inView, isDark }: {
           <p className={`text-[10px] font-body mt-0.5 ${isDark ? 'text-on-surface-variant/30' : 'text-gray-300'}`}>{t.relationship}</p>
         </div>
       </div>
+      </SpotlightCard>
     </motion.div>
   );
 }
@@ -198,9 +205,13 @@ export function Testimonials() {
         >
           <div>
             <span className="section-label">Social Proof</span>
-            <h2 className={`section-heading ${isDark ? '' : '!text-gray-900'}`}>
-              Trust &amp; Credentials
-            </h2>
+            <BlurText
+              as="h2"
+              text="Trust & Credentials"
+              className={`section-heading ${isDark ? '' : '!text-gray-900'}`}
+              stagger={0.06}
+              duration={0.7}
+            />
             <p className={`mt-3 text-sm font-body max-w-lg ${isDark ? 'text-on-surface-variant' : 'text-gray-500'}`}>
               What colleagues say, and the certifications that back the work.
             </p>

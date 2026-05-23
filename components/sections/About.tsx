@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { aboutContent, personalInfo } from '@/data/portfolio';
+import { BlurText, SpotlightCard, Aurora } from '../ui/animations';
 
 const CARD_META = [
   { metric: '3 CI platforms',     span: 'md:col-span-2', hue: 'primary' },
@@ -44,9 +45,19 @@ export function About() {
   return (
     <section
       id="about"
-      className={`py-32 px-6 transition-colors ${isDark ? 'bg-surface-container-low' : 'bg-gray-50'}`}
+      className={`relative py-32 px-6 transition-colors overflow-hidden ${isDark ? 'bg-surface-container-low' : 'bg-gray-50'}`}
     >
-      <div className="max-w-7xl mx-auto" ref={ref}>
+      {/* Soft aurora wash — only in dark mode where it reads as atmospheric */}
+      {isDark && (
+        <Aurora
+          className="absolute inset-x-0 top-0 h-[60%] -z-10"
+          colorStops={['#98cbff', '#bdc2ff', '#5dcaa5']}
+          speed={18}
+          amplitude={0.18}
+        />
+      )}
+
+      <div className="max-w-7xl mx-auto relative" ref={ref}>
 
         {/* Section header */}
         <motion.div
@@ -56,9 +67,13 @@ export function About() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="section-label">{aboutContent.label}</span>
-          <h2 className={`section-heading ${isDark ? '' : '!text-gray-900'}`}>
-            {aboutContent.heading}
-          </h2>
+          <BlurText
+            as="h2"
+            text={aboutContent.heading}
+            className={`section-heading ${isDark ? '' : '!text-gray-900'}`}
+            stagger={0.05}
+            duration={0.7}
+          />
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -303,6 +318,13 @@ export function About() {
                 const meta = CARD_META[i];
                 const hue = HUE[meta.hue];
 
+                const spotlightHueMap: Record<Hue, string> = {
+                  primary: 'rgba(152,203,255,0.14)',
+                  green:   'rgba(34,197,94,0.14)',
+                  amber:   'rgba(245,158,11,0.14)',
+                  violet:  'rgba(139,92,246,0.14)',
+                };
+
                 return (
                   <motion.div
                     key={item.title}
@@ -310,12 +332,17 @@ export function About() {
                     animate={inView ? { opacity: 1, y: 0 } : {}}
                     transition={{ delay: 0.45 + i * 0.09, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                     whileHover={{ y: -4, scale: 1.01 }}
-                    className={`group ${meta.span} relative p-6 rounded-2xl border transition-all duration-300 cursor-default overflow-hidden ${
+                    className={`group ${meta.span} relative rounded-2xl border transition-all duration-300 cursor-default overflow-hidden ${
                       isDark
                         ? `bg-surface-container ${hue.border}`
                         : `bg-white shadow-sm hover:shadow-md ${hue.border}`
                     }`}
                   >
+                    <SpotlightCard
+                      className="p-6 rounded-2xl"
+                      spotlightColor={spotlightHueMap[meta.hue]}
+                      radius={260}
+                    >
                     {/* Hover background glow */}
                     <div
                       className={`absolute inset-0 bg-gradient-to-br ${hue.glow} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
@@ -356,6 +383,7 @@ export function About() {
                         {item.description}
                       </p>
                     </div>
+                    </SpotlightCard>
                   </motion.div>
                 );
               })}

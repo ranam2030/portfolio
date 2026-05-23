@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { stats } from '@/data/portfolio';
+import { BlurText } from '../ui/animations';
 
 const STAT_META = [
   { icon: 'trending_down',    color: '#98cbff', arc: 0.70, label: 'of manual regression eliminated' },
@@ -158,9 +159,13 @@ export function Stats() {
         >
           <div>
             <span className="section-label">Impact Numbers</span>
-            <h2 className={`text-3xl font-bold font-headline tracking-tight ${isDark ? 'text-on-surface' : 'text-gray-900'}`}>
-              By The Numbers
-            </h2>
+            <BlurText
+              as="h2"
+              text="By The Numbers"
+              className={`text-3xl font-bold font-headline tracking-tight ${isDark ? 'text-on-surface' : 'text-gray-900'}`}
+              stagger={0.06}
+              duration={0.7}
+            />
           </div>
           <span
             className={`text-[10px] font-mono px-3 py-1.5 rounded-lg border select-none ${

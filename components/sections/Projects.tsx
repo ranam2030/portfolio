@@ -4,6 +4,7 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { motion, useInView, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { projects, type Project } from '@/data/portfolio';
+import { BlurText } from '../ui/animations';
 
 /* ─── Category metadata ─────────────────────────────────── */
 const CATEGORIES = [
@@ -598,7 +599,13 @@ export function Projects() {
         >
           <div>
             <span className="section-label">Case Studies</span>
-            <h2 className={`section-heading ${isDark ? '' : '!text-gray-900'}`}>Featured Projects</h2>
+            <BlurText
+              as="h2"
+              text="Featured Projects"
+              className={`section-heading ${isDark ? '' : '!text-gray-900'}`}
+              stagger={0.06}
+              duration={0.7}
+            />
             <p className={`mt-3 text-base font-light max-w-xl font-body ${isDark ? 'text-on-surface-variant' : 'text-gray-500'}`}>
               Real frameworks and pipelines built in production — not toy projects.
             </p>

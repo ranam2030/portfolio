@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { useRef, useState, useEffect, type CSSProperties } from 'react';
 import { useTheme } from '../ui/ThemeProvider';
+import { ShinyText, DotGrid, ClickSpark } from '../ui/animations';
 
 const containerVariants = {
   hidden: {},
@@ -117,13 +118,14 @@ export function Hero() {
         className="absolute top-0 right-1/3 w-[400px] h-[400px] bg-secondary/4 rounded-full blur-[120px] -z-10 pointer-events-none"
       />
 
-      {/* Dot grid pattern */}
-      <div
-        className="absolute inset-0 -z-10 pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(circle, ${isDark ? 'rgba(152,203,255,0.07)' : 'rgba(59,130,246,0.06)'} 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }}
+      {/* Interactive dot grid — brightens around cursor */}
+      <DotGrid
+        className="absolute inset-0 -z-10 w-full h-full"
+        dotColor={isDark ? 'rgba(152,203,255,0.08)' : 'rgba(59,130,246,0.07)'}
+        activeColor={isDark ? 'rgba(152,203,255,0.55)' : 'rgba(59,130,246,0.45)'}
+        spacing={36}
+        dotSize={1.4}
+        proximity={140}
       />
 
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center py-16">
@@ -160,7 +162,12 @@ export function Hero() {
             }`}
           >
             MASUD{' '}
-            <span className="text-gradient">RANA</span>
+            <ShinyText
+              text="RANA"
+              speed={5}
+              baseColor="#98cbff"
+              shineColor="#ffffff"
+            />
           </motion.h1>
 
           {/* Typewriter role */}
@@ -196,23 +203,27 @@ export function Hero() {
 
           {/* CTA Buttons */}
           <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mt-8">
-            <a
-              href="#projects"
-              className="btn-primary inline-flex items-center gap-2 relative overflow-hidden group"
-            >
-              <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
-              View Projects
-              <motion.div
-                className="absolute inset-0 bg-white/15"
-                initial={{ x: '-100%', skewX: '-20deg' }}
-                whileHover={{ x: '120%' }}
-                transition={{ duration: 0.5 }}
-              />
-            </a>
-            <a href="#contact" className="btn-secondary inline-flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">mail</span>
-              Contact Me
-            </a>
+            <ClickSpark sparkColor="#ffffff" sparkCount={10} sparkRadius={28}>
+              <a
+                href="#projects"
+                className="btn-primary inline-flex items-center gap-2 relative overflow-hidden group"
+              >
+                <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
+                View Projects
+                <motion.div
+                  className="absolute inset-0 bg-white/15"
+                  initial={{ x: '-100%', skewX: '-20deg' }}
+                  whileHover={{ x: '120%' }}
+                  transition={{ duration: 0.5 }}
+                />
+              </a>
+            </ClickSpark>
+            <ClickSpark sparkColor="#98cbff" sparkCount={8} sparkRadius={24}>
+              <a href="#contact" className="btn-secondary inline-flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">mail</span>
+                Contact Me
+              </a>
+            </ClickSpark>
           </motion.div>
 
           {/* Stats row */}

@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { personalInfo } from '@/data/portfolio';
+import { BlurText, ShinyText, Magnet, ClickSpark } from '../ui/animations';
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 

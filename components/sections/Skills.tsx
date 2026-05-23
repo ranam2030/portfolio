@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { skillCategories, type SkillCategory } from '@/data/portfolio';
+import { BlurText, Squares } from '../ui/animations';
 
 type Level = 'Expert' | 'Advanced' | 'Proficient' | 'Learning';
 
@@ -216,9 +217,19 @@ export function Skills() {
   return (
     <section
       id="skills"
-      className={`py-32 px-6 transition-colors ${isDark ? 'bg-surface' : 'bg-white'}`}
+      className={`relative py-32 px-6 transition-colors overflow-hidden ${isDark ? 'bg-surface' : 'bg-white'}`}
     >
-      <div className="max-w-7xl mx-auto" ref={ref}>
+      {/* Subtle moving grid — reinforces the 'engineered system' vibe */}
+      <Squares
+        className="absolute inset-0 w-full h-full -z-0 opacity-60"
+        lineColor={isDark ? 'rgba(152,203,255,0.04)' : 'rgba(59,130,246,0.05)'}
+        hoverFillColor={isDark ? 'rgba(152,203,255,0.06)' : 'rgba(59,130,246,0.05)'}
+        size={48}
+        speed={0.25}
+        direction="diagonal"
+      />
+
+      <div className="max-w-7xl mx-auto relative z-10" ref={ref}>
 
         {/* Header */}
         <motion.div
@@ -229,9 +240,13 @@ export function Skills() {
         >
           <div>
             <span className="section-label">Tech Stack</span>
-            <h2 className={`section-heading ${isDark ? '' : '!text-gray-900'}`}>
-              Expertise &amp; Tools
-            </h2>
+            <BlurText
+              as="h2"
+              text="Expertise & Tools"
+              className={`section-heading ${isDark ? '' : '!text-gray-900'}`}
+              stagger={0.05}
+              duration={0.7}
+            />
             <p className={`mt-3 text-sm font-body max-w-lg ${isDark ? 'text-on-surface-variant' : 'text-gray-500'}`}>
               6+ years across automation, performance, and DevOps — hover any skill to see proficiency details.
             </p>

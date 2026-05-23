@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { experiences } from '@/data/portfolio';
+import { BlurText } from '../ui/animations';
 
 const IMPACT_COLORS = ['text-primary', 'text-green-500', 'text-amber-500'];
 
@@ -137,9 +138,13 @@ export function Experience() {
         >
           <div>
             <span className="section-label">Professional Path</span>
-            <h2 className={`section-heading ${isDark ? '' : '!text-gray-900'}`}>
-              Career Evolution
-            </h2>
+            <BlurText
+              as="h2"
+              text="Career Evolution"
+              className={`section-heading ${isDark ? '' : '!text-gray-900'}`}
+              stagger={0.06}
+              duration={0.7}
+            />
             <p className={`mt-3 text-sm font-body max-w-lg ${isDark ? 'text-on-surface-variant' : 'text-gray-500'}`}>
               6+ years building quality systems — from manual testing to architecting full automation pipelines.
             </p>
