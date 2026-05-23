@@ -4,14 +4,22 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { aboutContent, personalInfo } from '@/data/portfolio';
-import { BlurText, SpotlightCard, Aurora } from '../ui/animations';
+import { BlurText, SpotlightCard, Aurora, ScrambledText, CountUp, Magnet } from '../ui/animations';
 
-const CARD_META = [
-  { metric: '3 CI platforms',     span: 'md:col-span-2', hue: 'primary' },
-  { metric: '70% regression ↓',   span: 'md:col-span-1', hue: 'green'   },
-  { metric: '100% tx accuracy',   span: 'md:col-span-1', hue: 'amber'   },
-  { metric: 'k6 · JMeter · Load', span: 'md:col-span-2', hue: 'violet'  },
-] as const;
+type CardMeta = {
+  span: string;
+  hue: 'primary' | 'green' | 'amber' | 'violet';
+  metric:
+    | { kind: 'count'; value: number; prefix?: string; suffix: string }
+    | { kind: 'static'; text: string };
+};
+
+const CARD_META: CardMeta[] = [
+  { hue: 'primary', span: 'md:col-span-2', metric: { kind: 'count',  value: 3,   suffix: ' CI platforms' } },
+  { hue: 'green',   span: 'md:col-span-1', metric: { kind: 'count',  value: 70,  suffix: '% regression ↓' } },
+  { hue: 'amber',   span: 'md:col-span-1', metric: { kind: 'count',  value: 100, suffix: '% tx accuracy' } },
+  { hue: 'violet',  span: 'md:col-span-2', metric: { kind: 'static', text: 'k6 · JMeter · Load' } },
+];
 
 type Hue = typeof CARD_META[number]['hue'];
 
@@ -97,16 +105,52 @@ export function About() {
               >
                 {/* Avatar + name */}
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="relative flex-shrink-0">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-tertiary flex items-center justify-center text-xl font-bold font-headline text-white shadow-lg">
-                      MR
-                    </div>
+                  <div className="relative flex-shrink-0" style={{ width: 64, height: 64 }}>
+                    {/* Rotating conic-gradient ring */}
+                    <motion.div
+                      aria-hidden
+                      className="absolute -inset-[3px] rounded-[18px] opacity-70"
+                      style={{
+                        background:
+                          'conic-gradient(from 0deg, #98cbff, #bdc2ff, #5dcaa5, #98cbff)',
+                      }}
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+                    />
+                    {/* Inner mask so the ring reads as a border */}
                     <div
-                      className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      className={`absolute inset-0 rounded-2xl ${
+                        isDark ? 'bg-surface-container' : 'bg-white'
+                      }`}
+                    />
+                    {/* Actual avatar */}
+                    <div className="absolute inset-[2px] rounded-2xl bg-gradient-to-br from-primary to-tertiary flex items-center justify-center text-xl font-bold font-headline text-white shadow-lg overflow-hidden">
+                      {/* Subtle inner shimmer */}
+                      <motion.span
+                        aria-hidden
+                        className="absolute inset-0"
+                        style={{
+                          background:
+                            'linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%)',
+                          backgroundSize: '200% 100%',
+                        }}
+                        animate={{ backgroundPosition: ['200% 0', '-200% 0'] }}
+                        transition={{ duration: 4.5, repeat: Infinity, ease: 'linear' }}
+                      />
+                      <span className="relative z-10">MR</span>
+                    </div>
+                    {/* Pulse status dot */}
+                    <div
+                      className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full border-2 flex items-center justify-center z-10 ${
                         isDark ? 'bg-green-500 border-surface-container' : 'bg-green-500 border-white'
                       }`}
                     >
-                      <div className="w-2 h-2 rounded-full bg-white" />
+                      <motion.div
+                        className="absolute inset-0 rounded-full bg-green-400"
+                        animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+                      />
+                      <div className="relative w-2 h-2 rounded-full bg-white" />
                     </div>
                   </div>
                   <div>
@@ -152,34 +196,38 @@ export function About() {
                   ))}
                 </div>
 
-                {/* Social links */}
+                {/* Social links — magnetic */}
                 <div className="mt-5 flex gap-2">
-                  <a
-                    href={personalInfo.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-medium font-body transition-all duration-200 border ${
-                      isDark
-                        ? 'bg-surface-container-high border-outline-variant/20 text-on-surface-variant hover:text-primary hover:border-primary/30 hover:bg-primary/5'
-                        : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">terminal</span>
-                    GitHub
-                  </a>
-                  <a
-                    href={personalInfo.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-medium font-body transition-all duration-200 border ${
-                      isDark
-                        ? 'bg-surface-container-high border-outline-variant/20 text-on-surface-variant hover:text-primary hover:border-primary/30 hover:bg-primary/5'
-                        : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">link</span>
-                    LinkedIn
-                  </a>
+                  <Magnet strength={0.35} range={90} className="flex-1">
+                    <a
+                      href={personalInfo.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-medium font-body transition-all duration-200 border ${
+                        isDark
+                          ? 'bg-surface-container-high border-outline-variant/20 text-on-surface-variant hover:text-primary hover:border-primary/30 hover:bg-primary/5'
+                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">terminal</span>
+                      GitHub
+                    </a>
+                  </Magnet>
+                  <Magnet strength={0.35} range={90} className="flex-1">
+                    <a
+                      href={personalInfo.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-medium font-body transition-all duration-200 border ${
+                        isDark
+                          ? 'bg-surface-container-high border-outline-variant/20 text-on-surface-variant hover:text-primary hover:border-primary/30 hover:bg-primary/5'
+                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">link</span>
+                      LinkedIn
+                    </a>
+                  </Magnet>
                 </div>
               </div>
 
@@ -199,10 +247,13 @@ export function About() {
                   Career Arc
                 </p>
                 <div className="relative pl-5">
-                  <div
-                    className={`absolute left-1.5 top-0 bottom-0 w-[1px] ${
+                  <motion.div
+                    className={`absolute left-1.5 top-0 bottom-0 w-[1px] origin-top ${
                       isDark ? 'bg-outline-variant/30' : 'bg-gray-200'
                     }`}
+                    initial={{ scaleY: 0 }}
+                    animate={inView ? { scaleY: 1 } : {}}
+                    transition={{ delay: 0.45, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                   />
                   {CAREER_ARC.map((item, i) => (
                     <motion.div
@@ -222,7 +273,16 @@ export function About() {
                             ? 'bg-outline-variant ring-surface-container'
                             : 'bg-gray-300 ring-white'
                         }`}
-                      />
+                      >
+                        {item.active && (
+                          <motion.span
+                            aria-hidden
+                            className="absolute inset-0 rounded-full bg-primary"
+                            animate={{ scale: [1, 2.4, 1], opacity: [0.6, 0, 0.6] }}
+                            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
+                          />
+                        )}
+                      </div>
                       <p
                         className={`text-[10px] font-mono leading-none mb-0.5 ${
                           item.active ? 'text-primary' : isDark ? 'text-on-surface-variant/40' : 'text-gray-400'
@@ -264,12 +324,25 @@ export function About() {
           >
             {/* Pull-quote */}
             <div className="relative pl-5 mb-10 border-l-2 border-primary/50">
-              <span
+              <motion.span
                 aria-hidden
                 className="absolute -top-4 -left-1 text-6xl leading-none font-serif text-primary/15 select-none"
+                animate={{
+                  rotate: [-3, 3, -3],
+                  y: [0, -3, 0],
+                  scale: [1, 1.04, 1],
+                }}
+                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
               >
                 "
-              </span>
+              </motion.span>
+              {/* Animated accent stripe — draws downward as the section enters view */}
+              <motion.div
+                className="absolute -left-[2px] top-0 w-[2px] bg-primary"
+                initial={{ height: 0 }}
+                animate={inView ? { height: '100%' } : {}}
+                transition={{ delay: 0.4, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              />
               <p
                 className={`text-lg md:text-xl font-light leading-relaxed font-body ${
                   isDark ? 'text-on-surface-variant' : 'text-gray-600'
@@ -277,7 +350,7 @@ export function About() {
               >
                 With over{' '}
                 <span className={`font-semibold ${isDark ? 'text-on-surface' : 'text-gray-900'}`}>
-                  6+ years of dedicated experience
+                  <CountUp to={6} suffix="+" duration={1600} /> years of dedicated experience
                 </span>{' '}
                 in the QA ecosystem — architecting automation frameworks that go beyond script execution, becoming
                 living quality gates embedded into every delivery pipeline.
@@ -294,13 +367,14 @@ export function About() {
                   animate={inView ? { opacity: 1, x: 0 } : {}}
                   transition={{ delay: 0.3 + i * 0.12, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <span
+                  <ScrambledText
+                    text={`0${i + 1}`}
+                    delay={300 + i * 120}
+                    duration={600}
                     className={`text-[11px] font-mono mt-1.5 w-5 shrink-0 ${
                       isDark ? 'text-primary/30' : 'text-primary/40'
                     }`}
-                  >
-                    0{i + 1}
-                  </span>
+                  />
                   <p
                     className={`text-base font-light leading-relaxed font-body ${
                       isDark ? 'text-on-surface-variant' : 'text-gray-600'
@@ -359,7 +433,16 @@ export function About() {
                           </span>
                         </div>
                         <span className={`text-[11px] font-mono font-medium ${hue.metric}`}>
-                          {meta.metric}
+                          {meta.metric.kind === 'count' ? (
+                            <CountUp
+                              to={meta.metric.value}
+                              prefix={meta.metric.prefix}
+                              suffix={meta.metric.suffix}
+                              duration={1400}
+                            />
+                          ) : (
+                            meta.metric.text
+                          )}
                         </span>
                       </div>
 
@@ -400,7 +483,13 @@ export function About() {
                   : 'bg-blue-50/80 border-blue-100 text-gray-600'
               }`}
             >
-              <span className="material-symbols-outlined text-primary text-[18px]">explore</span>
+              <motion.span
+                className="material-symbols-outlined text-primary text-[18px]"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+              >
+                explore
+              </motion.span>
               <span className="text-xs font-body">
                 Currently exploring{' '}
                 <span className={`font-semibold ${isDark ? 'text-on-surface' : 'text-gray-800'}`}>

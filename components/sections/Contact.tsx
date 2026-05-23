@@ -220,8 +220,9 @@ export function Contact() {
                   isDark ? 'text-on-surface' : 'text-gray-900'
                 }`}
               >
-                Get In<br />
-                <span className="text-gradient">Touch</span>
+                <BlurText text="Get In" stagger={0.07} duration={0.7} />
+                <br />
+                <ShinyText text="Touch" speed={5} baseColor="#98cbff" shineColor="#ffffff" />
               </h2>
 
               <p
@@ -233,18 +234,17 @@ export function Contact() {
                 at MNCs and fast-moving product companies.
               </p>
 
-              {/* Social link cards */}
+              {/* Social link cards — magnetic on hover */}
               <div className="mt-10 flex flex-col gap-3">
                 {SOCIAL_LINKS.map((link, i) => (
+                  <Magnet key={link.label} strength={0.25} range={130}>
                   <motion.a
-                    key={link.label}
                     href={link.href}
                     target={link.href.startsWith('mailto') ? undefined : '_blank'}
                     rel={link.href.startsWith('mailto') ? undefined : 'noopener noreferrer'}
                     initial={{ opacity: 0, x: -14 }}
                     animate={inView ? { opacity: 1, x: 0 } : {}}
                     transition={{ delay: 0.25 + i * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    whileHover={{ x: 4 }}
                     className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-250 group ${
                       isDark
                         ? 'bg-surface-container border-outline-variant/12 hover:border-outline-variant/30'
@@ -281,6 +281,7 @@ export function Contact() {
                       arrow_forward
                     </span>
                   </motion.a>
+                  </Magnet>
                 ))}
               </div>
 
@@ -378,12 +379,18 @@ export function Contact() {
 
               {/* Submit */}
               <div className="mt-6 flex items-center gap-4">
+                <ClickSpark
+                  sparkColor={formState === 'success' ? '#5dcaa5' : '#ffffff'}
+                  sparkCount={12}
+                  sparkRadius={30}
+                  className="flex-1 sm:flex-none"
+                >
                 <motion.button
                   type="submit"
                   disabled={formState === 'loading' || formState === 'success' || formState === 'error'}
                   whileHover={formState === 'idle' ? { scale: 1.02 } : {}}
                   whileTap={formState === 'idle' ? { scale: 0.98 } : {}}
-                  className={`flex-1 sm:flex-none px-8 py-3.5 rounded-xl font-bold font-body text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+                  className={`w-full px-8 py-3.5 rounded-xl font-bold font-body text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
                     formState === 'success'
                       ? isDark
                         ? 'bg-green-500/15 text-green-400 cursor-default'
@@ -412,6 +419,7 @@ export function Contact() {
                     </>
                   )}
                 </motion.button>
+                </ClickSpark>
 
                 <AnimatePresence mode="wait">
                   {formState === 'success' && (

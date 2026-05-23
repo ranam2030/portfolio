@@ -6,3 +6,5 @@ export { ClickSpark } from './ClickSpark';
 export { DotGrid } from './DotGrid';
 export { Squares } from './Squares';
 export { Aurora } from './Aurora';
+export { ScrambledText } from './ScrambledText';
+export { CountUp } from './CountUp';
