@@ -57,53 +57,101 @@ function FloatingField({
   type = 'text',
   value,
   onChange,
+  onBlur,
   required,
   placeholder,
   isDark,
+  error,
+  valid,
 }: {
   label: string;
   name: string;
   type?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   required?: boolean;
   placeholder?: string;
   isDark: boolean;
+  error?: string;
+  valid?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
   const isActive = focused || value.length > 0;
+  const showError = !!error && !focused;
 
   return (
     <div className="relative">
       <label
         className={`absolute left-4 transition-all duration-200 pointer-events-none font-body z-10 ${
           isActive
-            ? 'top-2 text-[10px] text-primary font-medium'
+            ? `top-2 text-[10px] font-medium ${showError ? 'text-red-400' : 'text-primary'}`
             : `top-[14px] text-sm ${isDark ? 'text-on-surface-variant/50' : 'text-gray-400'}`
         }`}
       >
         {label}
-        {required && <span className="text-primary ml-0.5">*</span>}
+        {required && <span className={showError ? 'text-red-400 ml-0.5' : 'text-primary ml-0.5'}>*</span>}
       </label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        placeholder={isActive ? placeholder : ''}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        className={`w-full px-4 pt-7 pb-2.5 rounded-xl text-sm font-body outline-none transition-all duration-200 border-2 ${
-          focused
-            ? isDark
-              ? 'border-primary bg-primary/6 text-on-surface'
-              : 'border-blue-400 bg-blue-50/50 text-gray-900 shadow-[0_0_0_3px_rgba(59,130,246,0.08)]'
-            : isDark
-            ? 'border-outline-variant/25 bg-surface-container-lowest text-on-surface hover:border-outline-variant/45'
-            : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
-        }`}
-      />
+      <motion.div
+        animate={showError ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          aria-invalid={showError}
+          placeholder={isActive ? placeholder : ''}
+          onFocus={() => setFocused(true)}
+          onBlur={(e) => { setFocused(false); onBlur?.(e); }}
+          className={`w-full px-4 pt-7 pb-2.5 pr-10 rounded-xl text-sm font-body outline-none transition-all duration-200 border-2 ${
+            showError
+              ? isDark
+                ? 'border-red-400/60 bg-red-500/5 text-on-surface'
+                : 'border-red-400 bg-red-50/50 text-gray-900'
+              : focused
+              ? isDark
+                ? 'border-primary bg-primary/6 text-on-surface'
+                : 'border-blue-400 bg-blue-50/50 text-gray-900 shadow-[0_0_0_3px_rgba(59,130,246,0.08)]'
+              : isDark
+              ? 'border-outline-variant/25 bg-surface-container-lowest text-on-surface hover:border-outline-variant/45'
+              : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+          }`}
+        />
+      </motion.div>
+
+      {/* Valid checkmark */}
+      <AnimatePresence>
+        {valid && !showError && (
+          <motion.span
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+            className="material-symbols-outlined text-[18px] text-green-400 absolute right-3 top-[18px] pointer-events-none"
+          >
+            check_circle
+          </motion.span>
+        )}
+      </AnimatePresence>
+
+      {/* Error message */}
+      <AnimatePresence>
+        {showError && (
+          <motion.p
+            initial={{ opacity: 0, height: 0, y: -4 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center gap-1 text-[11px] text-red-400 font-body mt-1.5 ml-1 overflow-hidden"
+          >
+            <span className="material-symbols-outlined text-[13px]">error</span>
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -113,51 +161,112 @@ function FloatingTextarea({
   name,
   value,
   onChange,
+  onBlur,
   required,
   rows,
   isDark,
+  error,
+  valid,
+  maxLength,
 }: {
   label: string;
   name: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLTextAreaElement>) => void;
   required?: boolean;
   rows?: number;
   isDark: boolean;
+  error?: string;
+  valid?: boolean;
+  maxLength?: number;
 }) {
   const [focused, setFocused] = useState(false);
   const isActive = focused || value.length > 0;
+  const showError = !!error && !focused;
 
   return (
     <div className="relative">
       <label
         className={`absolute left-4 transition-all duration-200 pointer-events-none font-body z-10 ${
           isActive
-            ? 'top-2 text-[10px] text-primary font-medium'
+            ? `top-2 text-[10px] font-medium ${showError ? 'text-red-400' : 'text-primary'}`
             : `top-[14px] text-sm ${isDark ? 'text-on-surface-variant/50' : 'text-gray-400'}`
         }`}
       >
         {label}
-        {required && <span className="text-primary ml-0.5">*</span>}
+        {required && <span className={showError ? 'text-red-400 ml-0.5' : 'text-primary ml-0.5'}>*</span>}
       </label>
-      <textarea
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        rows={rows}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        className={`w-full px-4 pt-7 pb-3 rounded-xl text-sm font-body outline-none transition-all duration-200 border-2 resize-none ${
-          focused
-            ? isDark
-              ? 'border-primary bg-primary/6 text-on-surface'
-              : 'border-blue-400 bg-blue-50/50 text-gray-900 shadow-[0_0_0_3px_rgba(59,130,246,0.08)]'
-            : isDark
-            ? 'border-outline-variant/25 bg-surface-container-lowest text-on-surface hover:border-outline-variant/45'
-            : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
-        }`}
-      />
+      <motion.div
+        animate={showError ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <textarea
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          rows={rows}
+          maxLength={maxLength}
+          aria-invalid={showError}
+          onFocus={() => setFocused(true)}
+          onBlur={(e) => { setFocused(false); onBlur?.(e); }}
+          className={`w-full px-4 pt-7 pb-3 rounded-xl text-sm font-body outline-none transition-all duration-200 border-2 resize-none ${
+            showError
+              ? isDark
+                ? 'border-red-400/60 bg-red-500/5 text-on-surface'
+                : 'border-red-400 bg-red-50/50 text-gray-900'
+              : focused
+              ? isDark
+                ? 'border-primary bg-primary/6 text-on-surface'
+                : 'border-blue-400 bg-blue-50/50 text-gray-900 shadow-[0_0_0_3px_rgba(59,130,246,0.08)]'
+              : isDark
+              ? 'border-outline-variant/25 bg-surface-container-lowest text-on-surface hover:border-outline-variant/45'
+              : 'border-gray-200 bg-white text-gray-900 hover:border-gray-300'
+          }`}
+        />
+      </motion.div>
+
+      {/* Char counter + valid tick */}
+      <div className="flex items-center justify-between mt-1.5 ml-1 min-h-[16px]">
+        <AnimatePresence mode="wait">
+          {showError ? (
+            <motion.p
+              key="err"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-1 text-[11px] text-red-400 font-body"
+            >
+              <span className="material-symbols-outlined text-[13px]">error</span>
+              {error}
+            </motion.p>
+          ) : valid ? (
+            <motion.span
+              key="ok"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center gap-1 text-[11px] text-green-400 font-body"
+            >
+              <span className="material-symbols-outlined text-[13px]">check_circle</span>
+              Looks good
+            </motion.span>
+          ) : (
+            <span />
+          )}
+        </AnimatePresence>
+        {maxLength && (
+          <span className={`text-[10px] font-mono ${
+            value.length > maxLength * 0.9
+              ? 'text-amber-400'
+              : isDark ? 'text-on-surface-variant/40' : 'text-gray-400'
+          }`}>
+            {value.length}/{maxLength}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -171,13 +280,57 @@ export function Contact() {
   const [formData, setFormData] = useState<FormData>({ name: '', email: '', subject: '', message: '' });
   const [formState, setFormState] = useState<FormState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Per-field validation rules.
+  const validate = (field: keyof FormData, val: string): string => {
+    switch (field) {
+      case 'name':
+        if (!val.trim()) return 'Name is required';
+        if (val.trim().length < 2) return 'Name is too short';
+        return '';
+      case 'email':
+        if (!val.trim()) return 'Email is required';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Enter a valid email address';
+        return '';
+      case 'message':
+        if (!val.trim()) return 'Message is required';
+        if (val.trim().length < 10) return 'Message should be at least 10 characters';
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  const errors: Partial<Record<keyof FormData, string>> = {
+    name: validate('name', formData.name),
+    email: validate('email', formData.email),
+    message: validate('message', formData.message),
+  };
+
+  // Only surface an error once the field has been touched.
+  const fieldError = (field: keyof FormData) =>
+    touched[field] ? errors[field] : '';
+  const fieldValid = (field: keyof FormData) =>
+    !!formData[field] && !errors[field];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setTouched(prev => ({ ...prev, [e.target.name]: true }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Mark all as touched so errors show, and block submit if invalid.
+    if (errors.name || errors.email || errors.message) {
+      setTouched({ name: true, email: true, message: true });
+      return;
+    }
+
     setFormState('loading');
     setErrorMsg('');
     try {
@@ -190,6 +343,7 @@ export function Contact() {
       if (!res.ok) throw new Error(data.error || 'Something went wrong.');
       setFormState('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
+      setTouched({});
       setTimeout(() => setFormState('idle'), 6000);
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to send. Please try again.');
@@ -338,9 +492,12 @@ export function Contact() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   required
                   placeholder="Your name"
                   isDark={isDark}
+                  error={fieldError('name')}
+                  valid={fieldValid('name')}
                 />
                 <FloatingField
                   label="Email"
@@ -348,9 +505,12 @@ export function Contact() {
                   type="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   required
                   placeholder="you@company.com"
                   isDark={isDark}
+                  error={fieldError('email')}
+                  valid={fieldValid('email')}
                 />
               </div>
 
@@ -360,6 +520,7 @@ export function Contact() {
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Opportunity / Collaboration / Inquiry"
                   isDark={isDark}
                 />
@@ -371,9 +532,13 @@ export function Contact() {
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   required
                   rows={5}
                   isDark={isDark}
+                  maxLength={1000}
+                  error={fieldError('message')}
+                  valid={fieldValid('message')}
                 />
               </div>
 

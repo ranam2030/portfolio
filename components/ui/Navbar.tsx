@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { useTheme } from './ThemeProvider';
+import { Ripple } from './animations';
 
 const navLinks = [
   { label: 'About', href: '#about' },
@@ -18,14 +19,35 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const lastScrollY = useRef(0);
+
+  // Smooth scroll-progress bar across the top of the navbar.
+  const { scrollYProgress } = useScroll();
+  const progressScaleX = useSpring(scrollYProgress, {
+    stiffness: 180,
+    damping: 30,
+    restDelta: 0.001,
+  });
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      const y = window.scrollY;
+      setScrolled(y > 40);
+
+      // Hide on scroll down (past the hero), show on scroll up.
+      if (y > lastScrollY.current && y > 160 && !mobileOpen) {
+        setHidden(true);
+      } else if (y < lastScrollY.current) {
+        setHidden(false);
+      }
+      lastScrollY.current = y;
+
       const sections = navLinks.map(l => l.href.slice(1));
       for (const id of [...sections].reverse()) {
         const el = document.getElementById(id);
-        if (el && window.scrollY >= el.offsetTop - 120) {
+        if (el && y >= el.offsetTop - 120) {
           setActiveSection(id);
           break;
         }
@@ -33,7 +55,7 @@ export function Navbar() {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [mobileOpen]);
 
   const isDark = theme === 'dark';
 
@@ -42,9 +64,9 @@ export function Navbar() {
       <motion.nav
         aria-label="Main navigation"
         initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        animate={{ y: hidden ? -100 : 0, opacity: 1 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className={`fixed top-0 w-full z-50 transition-[background-color,border-color] duration-300 ${
           scrolled
             ? isDark
               ? 'bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10'
@@ -52,6 +74,12 @@ export function Navbar() {
             : 'bg-transparent'
         }`}
       >
+        {/* Scroll progress bar */}
+        <motion.div
+          aria-hidden
+          className="absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-gradient-to-r from-primary via-tertiary to-primary"
+          style={{ scaleX: progressScaleX, opacity: scrolled ? 1 : 0 }}
+        />
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
           {/* Logo */}
           <a href="#" aria-label="Masud Rana — back to top" className="flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-1">
@@ -66,15 +94,22 @@ export function Navbar() {
           </a>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8" role="list">
+          <div
+            className="hidden md:flex items-center gap-8"
+            role="list"
+            onMouseLeave={() => setHovered(null)}
+          >
             {navLinks.map(link => {
-              const isActive = activeSection === link.href.slice(1);
+              const id = link.href.slice(1);
+              const isActive = activeSection === id;
+              const isHovered = hovered === id;
               return (
                 <a
                   key={link.href}
                   href={link.href}
                   role="listitem"
                   aria-current={isActive ? 'true' : undefined}
+                  onMouseEnter={() => setHovered(id)}
                   className={`relative text-sm font-medium font-body tracking-tight transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-1 py-0.5 ${
                     isActive
                       ? 'text-primary'
@@ -84,10 +119,20 @@ export function Navbar() {
                   }`}
                 >
                   {link.label}
+                  {/* Hover underline — grows from center */}
+                  <motion.span
+                    aria-hidden
+                    className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-primary/60 origin-center"
+                    initial={false}
+                    animate={{ scaleX: isHovered && !isActive ? 1 : 0 }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                  {/* Active indicator — shared-layout slide between links */}
                   {isActive && (
                     <motion.span
                       layoutId="active-nav"
-                      className="absolute -bottom-1 left-0 right-0 h-[1px] bg-primary"
+                      className="absolute -bottom-1 left-0 right-0 h-[1.5px] bg-primary"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                     />
                   )}
                 </a>
@@ -112,17 +157,19 @@ export function Navbar() {
               </span>
             </button>
 
-            {/* Resume CTA */}
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Download resume (opens in new tab)"
-              className="hidden md:inline-flex items-center gap-1.5 px-5 py-2 bg-primary text-on-primary text-sm font-bold rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 active:scale-95 font-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-            >
-              <span className="material-symbols-outlined text-[16px]">download</span>
-              Resume
-            </a>
+            {/* Resume CTA — material ripple on click */}
+            <Ripple className="hidden md:inline-flex rounded-lg" color="rgba(255,255,255,0.45)">
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download resume (opens in new tab)"
+                className="inline-flex items-center gap-1.5 px-5 py-2 bg-primary text-on-primary text-sm font-bold rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 active:scale-95 font-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                <span className="material-symbols-outlined text-[16px]">download</span>
+                Resume
+              </a>
+            </Ripple>
 
             {/* Mobile Menu Toggle */}
             <button

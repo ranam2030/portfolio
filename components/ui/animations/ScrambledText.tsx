@@ -38,6 +38,15 @@ export function ScrambledText({
   useEffect(() => {
     if (!inView) return;
 
+    // Respect prefers-reduced-motion — reveal the final text without scrambling.
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setOutput(text);
+      return;
+    }
+
     let frame = 0;
     const totalFrames = Math.max(8, Math.round(duration / 60));
     const startAt = performance.now() + delay;

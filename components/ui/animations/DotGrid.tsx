@@ -103,7 +103,22 @@ export function DotGrid({
       mouseRef.current.active = false;
     };
 
+    // Respect prefers-reduced-motion: draw a static grid once, no rAF, no cursor tracking.
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
     resize();
+
+    if (reduceMotion) {
+      draw();
+      window.addEventListener('resize', () => {
+        resize();
+        draw();
+      });
+      return () => window.removeEventListener('resize', resize);
+    }
+
     loop();
 
     window.addEventListener('resize', resize);

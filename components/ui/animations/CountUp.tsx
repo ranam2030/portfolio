@@ -44,6 +44,16 @@ export function CountUp({
 
   useEffect(() => {
     if (!inView) return;
+
+    // Respect prefers-reduced-motion — show the final value immediately.
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setValue(to);
+      return;
+    }
+
     let rafId = 0;
     const startTime = performance.now();
 

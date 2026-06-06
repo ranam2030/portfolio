@@ -39,6 +39,9 @@ export function Squares({
 
     let rafId = 0;
     let dpr = window.devicePixelRatio || 1;
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -80,6 +83,9 @@ export function Squares({
         ctx.lineTo(rect.width, y);
         ctx.stroke();
       }
+
+      // Static when reduced motion is preferred — draw the grid once, never advance.
+      if (reduceMotion) return;
 
       // Advance offset
       if (direction === 'diagonal') {

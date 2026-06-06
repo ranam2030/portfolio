@@ -8,3 +8,5 @@ export { Squares } from './Squares';
 export { Aurora } from './Aurora';
 export { ScrambledText } from './ScrambledText';
 export { CountUp } from './CountUp';
+export { Ripple } from './Ripple';
+export { Parallax } from './Parallax';

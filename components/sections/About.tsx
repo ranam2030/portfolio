@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from '../ui/ThemeProvider';
 import { aboutContent, personalInfo } from '@/data/portfolio';
-import { BlurText, SpotlightCard, Aurora, ScrambledText, CountUp, Magnet } from '../ui/animations';
+import { BlurText, SpotlightCard, Aurora, ScrambledText, CountUp, Magnet, Parallax } from '../ui/animations';
 
 type CardMeta = {
   span: string;
@@ -55,14 +55,16 @@ export function About() {
       id="about"
       className={`relative py-32 px-6 transition-colors overflow-hidden ${isDark ? 'bg-surface-container-low' : 'bg-gray-50'}`}
     >
-      {/* Soft aurora wash — only in dark mode where it reads as atmospheric */}
+      {/* Soft aurora wash — drifts on scroll for depth (dark mode only) */}
       {isDark && (
-        <Aurora
-          className="absolute inset-x-0 top-0 h-[60%] -z-10"
-          colorStops={['#98cbff', '#bdc2ff', '#5dcaa5']}
-          speed={18}
-          amplitude={0.18}
-        />
+        <Parallax offset={-80} className="absolute inset-x-0 top-0 h-[60%] -z-10">
+          <Aurora
+            className="absolute inset-0"
+            colorStops={['#98cbff', '#bdc2ff', '#5dcaa5']}
+            speed={18}
+            amplitude={0.18}
+          />
+        </Parallax>
       )}
 
       <div className="max-w-7xl mx-auto relative" ref={ref}>
