@@ -28,12 +28,9 @@ export function ScrambledText({
 }: ScrambledTextProps) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once, margin: '-40px' });
-  const [output, setOutput] = useState(() =>
-    text
-      .split('')
-      .map((c) => (c === ' ' ? ' ' : randomChar(scrambleChars)))
-      .join('')
-  );
+  // Initialize to the real text so server and first client render match
+  // (random chars in the initializer would cause a hydration mismatch).
+  const [output, setOutput] = useState(text);
 
   useEffect(() => {
     if (!inView) return;
@@ -46,6 +43,14 @@ export function ScrambledText({
       setOutput(text);
       return;
     }
+
+    // Seed a fully-scrambled string (client-only) before animating to the text.
+    setOutput(
+      text
+        .split('')
+        .map((c) => (c === ' ' ? ' ' : randomChar(scrambleChars)))
+        .join('')
+    );
 
     let frame = 0;
     const totalFrames = Math.max(8, Math.round(duration / 60));

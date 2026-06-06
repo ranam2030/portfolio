@@ -47,14 +47,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggleTheme = () => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
 
-  if (!mounted) {
-    return (
-      <html lang="en" className="dark">
-        <body>{children}</body>
-      </html>
-    );
-  }
-
+  // Never render <html>/<body> here — this provider lives inside the root
+  // layout's <body>, so emitting those tags nests <html> under <body> and
+  // throws a hydration error. Theme class is applied to documentElement in the
+  // effect above (client-only), which is the correct place.
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
